@@ -8,6 +8,7 @@ public class PianoSound : AbstractSound {
 	//ArrayList FrameBuffer;
 
 	//const int max = 20;
+	bool isDown = false;
 
 	const int BUFFER_MAX=5;
 
@@ -151,39 +152,24 @@ public class PianoSound : AbstractSound {
 		{
 			SaveFingerDataWithHandIndex( hand );
 		}
-
-		///数据记录完成
-	/*	Debug.Log (m_PalmDatas[0].m_Position);
-		Debug.Log (m_PalmDatas[0].m_Direction);
-		Debug.Log (m_PalmDatas[1].m_Position);
-		Debug.Log (m_PalmDatas[1].m_Direction);
-		Hand firstHand = hands [0];
-		FingerList fingers = firstHand.Fingers;
-		foreach (Finger f in fingers) {
-			Finger.FingerType fType = f.Type;
-			Vector fDir = f.Direction;
-			Vector fPos = f.TipPosition;
-			Debug.Log (fDir);
-			Debug.Log (fPos);
-		}*/
 		//根据两帧之间手的数据来判断是不是食指在点击
-		//m_CurBufIndex>0时，为m_CurBufIndex-1；=0时为3
-		//输出右手食指信息
-		if (m_FingerDatas [1] != null) {
-			if (m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX] != null) {
-				Debug.Log (m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position);
-				Debug.Log (m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Direction);
+		Debug.Log ("In update!");
+		if (m_FingerDatas [1].ContainsKey (Finger.FingerType.TYPE_INDEX) && m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4].ContainsKey (Finger.FingerType.TYPE_INDEX)
+			&& m_FingerDatas [1].ContainsKey (Finger.FingerType.TYPE_MIDDLE) && m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4].ContainsKey (Finger.FingerType.TYPE_MIDDLE)) {
+			//Debug.Log (m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position);
+			//Debug.Log (m_FingerDatas [1] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position);
+			if (((m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position.y < m_FingerDatasBuffer [1,(m_CurBufIndex + 3) % 4] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position.y - 15.0))
+				&& System.Math.Abs(m_FingerDatas [1] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position.y - m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position.y)<10.0
+				&& isDown == false) {
+				isDown = true;
+				Debug.Log ("Downing!!");
 			}
-			if (m_CurBufIndex > 0) {
-				Debug.Log (m_FingerDatasBuffer [1, m_CurBufIndex - 1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position);
-				Debug.Log (m_FingerDatasBuffer [1, m_CurBufIndex - 1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Direction);
-			} else {
-				Debug.Log (m_FingerDatasBuffer [1, 3] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position);
-				Debug.Log (m_FingerDatasBuffer [1, 3] [Finger.FingerType.TYPE_INDEX].m_Point.m_Direction);
+			if (m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position.y > m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position.y + 15.0
+				&& System.Math.Abs(m_FingerDatas [1] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position.y - m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position.y)<10.0) {
+				Debug.Log("Uping!!");
+				isDown = false;
 			}
-
 		}
-
 		m_CurBufIndex=(m_CurBufIndex+1)%(BUFFER_MAX-1);
 		return true;
 	}
