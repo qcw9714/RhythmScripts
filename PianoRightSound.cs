@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Leap;
 
-public class PianoSound : AbstractSound {
+public class PianoRightSound : AbstractSound {
 	public bool isDown = false;
 	public int Index_Now = 0;
 	public Vector[,] LeftPosition;//左手
 	public Vector[,] RightPosition;//右手
 	public double[] RightDisResult = new double[5];
 	private readonly Vector VectorZero = new Vector(0,0,0);
-	public PianoSound(){
+	public PianoRightSound(){
 		LeftPosition  = new Vector[2,5];
 		RightPosition  = new Vector[2,5];
 		for (int i = 0; i < 2; i++) {
@@ -104,7 +104,7 @@ public class PianoSound : AbstractSound {
 			SaveData(hands[0]);
 			SaveData(hands[1]);
 		}
-		Debug.Log (RightPosition [Index_Now,0]);
+		// Debug.Log (RightPosition [Index_Now,0]);
 
 		//手信息存储完毕
 		//根据右手两帧之间的不同来判断是不是点击手势
@@ -120,54 +120,37 @@ public class PianoSound : AbstractSound {
 			}
 		}
 		bool isTrue = false;
-		if(RightDisResult[0] > 3.0 && tt>=3 && isDown==false && RightPosition [Index_Now,0].y < RightPosition [(Index_Now + 1) % 2,0].y){
+		if(RightDisResult[0] > 3.0 && tt>=3 && !isDown && RightPosition [Index_Now,0].y < RightPosition [(Index_Now + 1) % 2,0].y){
 			isTrue = true;
 			AudioClip drum;
 			Vector3 position;
-			if (RightPosition [Index_Now, 0].x < -120.0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoA;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} else if (RightPosition [Index_Now, 0].x >= -120.0 && RightPosition [Index_Now, 0].x < -90.0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoB;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} 
-			else if (RightPosition [Index_Now, 0].x >= -90.0 && RightPosition [Index_Now, 0].x < -60.0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoC;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} 
-			else if (RightPosition [Index_Now, 0].x >= -60.0 && RightPosition [Index_Now, 0].x < -30.0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoD;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} 
-			else if (RightPosition [Index_Now, 0].x >= -30.0 && RightPosition [Index_Now, 0].x < 0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoE;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} 
-			else if (RightPosition [Index_Now, 0].x >= 0 && RightPosition [Index_Now, 0].x < 30.0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoF;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} 
-			else if (RightPosition [Index_Now, 0].x >= 30.0 && RightPosition [Index_Now, 0].x < 60.0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoG;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} 
-			else if (RightPosition [Index_Now, 0].x >= 60.0 && RightPosition [Index_Now, 0].x < 90.0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoH;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} 
-			else if (RightPosition [Index_Now, 0].x >= 90.0 && RightPosition [Index_Now, 0].x < 120.0) {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoI;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			} 
-			else {
-				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoJ;
-				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			}
+			position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			Vector hit = RightPosition [Index_Now, 0];
+			int hitX = 1, hitZ = 1;
+			if (hit.x < -30) hitX = 0;
+			if (hit.x > 30) hitX = 2;
+			if (hit.z < -30) hitZ = 0;
+			if (hit.z > 30) hitZ = 2;
+			int hitValue = hitX * 3 + hitZ;
+			if (hitValue == 0) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoA;
+			else if (hitValue == 1) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoB;
+			else if (hitValue == 2) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoC;
+			else if (hitValue == 3) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoD;
+			else if (hitValue == 4) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoE;
+			else if (hitValue == 5) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoF;
+			else if (hitValue == 6) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoG;
+			else if (hitValue == 7) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoH;
+			else if (hitValue == 8) drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoI;
+			else drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoJ;
 			isDown = true;
-			//Debug.Log("Downing!");
-		//	AudioClip drum = GameObject.Find("Hand Controller").GetComponent<AC>().pianoA;
-		//	Vector3 position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			AudioSource.PlayClipAtPoint (drum,position);
+			AudioSource.PlayClipAtPoint (drum ,position);
+
+			//	Debug.Log (RightPosition [Index_Now, 0].x);
+			//	Debug.Log (RightPosition [Index_Now, 0].z);
+			//	Debug.Log("Downing!");
+			//	AudioClip drum = GameObject.Find("Hand Controller").GetComponent<AC>().pianoA;
+			//	Vector3 position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+
 		}
 		if(RightPosition [Index_Now,0].y > RightPosition [(Index_Now + 1) % 2,0].y + 1.0){
 			isDown = false;

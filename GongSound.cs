@@ -4,7 +4,10 @@ using UnityEngine;
 using Leap;
 
 public class GongSound : AbstractSound {
-	
+
+	float lastSphereRadius;
+	float drumThreshold = 38f;
+
 	public GongSound() {
 	}
 
