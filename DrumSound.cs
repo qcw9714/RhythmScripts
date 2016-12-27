@@ -18,7 +18,7 @@ public class DrumSound : AbstractSound {
 		float recentSphereRadius = firstHand.SphereRadius;
 		if (recentSphereRadius > 0) {
 			if (lastSphereRadius > drumThreshold && recentSphereRadius <= drumThreshold) {
-				Debug.Log (firstHand.SphereRadius);
+				// Debug.Log (firstHand.SphereRadius);
 				AudioClip drum = GameObject.Find("Hand Controller").GetComponent<AC>().drum;
 				Vector3 position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
 				AudioSource.PlayClipAtPoint (drum,position);

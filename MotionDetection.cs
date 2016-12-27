@@ -9,6 +9,7 @@ public class MotionDetection : MonoBehaviour {
 
 	int actionKind = 0;
 	int actionStep = 0;
+	float lastRotateAngle;
 
 	// Use this for initialization
 	void Start () {
@@ -58,7 +59,8 @@ public class MotionDetection : MonoBehaviour {
 			if (actionStep == 0) {
 				if (!isPlaying) {
 					++actionStep;
-					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Rotate (0, Random.Range(0, 360), 0);
+					lastRotateAngle = Random.Range (0, 360);
+					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Rotate (0, lastRotateAngle, 0);
 					GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("run");
 				}
 			} else
@@ -67,15 +69,15 @@ public class MotionDetection : MonoBehaviour {
 					++actionStep;
 					GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("run");
 				} else {
-					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * 2f * Time.deltaTime);
+					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * 1f * Time.deltaTime);
 				}
 			} else
 			if (actionStep == 2) {
 				if (!isPlaying) {
 					actionKind = actionStep = 0;
-					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Rotate (0, 0, 0);
+					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Rotate (0, -lastRotateAngle, 0);
 				} else {
-					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * -2f * Time.deltaTime);
+//					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * -1f * Time.deltaTime);
 				}
 			}
 		}
