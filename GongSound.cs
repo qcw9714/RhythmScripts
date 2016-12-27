@@ -15,6 +15,7 @@ public class GongSound : AbstractSound {
 	public Vector PalmNormal;//手掌法向量
 	public Vector PalmVelocity;//手掌运动方向
 	public bool[] IsAllStraight = new bool[5];
+	public bool isIndexStraight = false;
 	public bool isMiddleStraight = false;
 	bool isHandDown = false;
 	bool isMoveDown = false;
@@ -131,12 +132,15 @@ public class GongSound : AbstractSound {
 			SetData(hand);
 		}
 		//数据采集完毕
-		//首先看手指是不是伸直的,中指必须伸直并且伸直手指数大于等于3
+		//首先看手指是不是伸直的,中食指必须伸直并且伸直手指数大于等于3
 		int Sum = 0;
 		for (int i = 0; i < 5; i++) {
 			IsAllStraight[i] = IsStraight (i);
+			if (i == 0) {
+				isIndexStraight = IsAllStraight [i];//食指是否伸直
+			}
 			if (i == 1) {
-				isMiddleStraight = IsAllStraight [i];//中指是否伸直
+				isMiddleStraight = IsAllStraight [i];//中指
 			}
 			if (IsAllStraight [i] == true) {
 				Sum = Sum + 1;//伸直手指总数
@@ -193,7 +197,7 @@ public class GongSound : AbstractSound {
 			}
 		}
 
-		if (isHandDown && isMoveDown && PalmPosition[Index_Now].y < PalmPosition[(Index_Now+1)%2].y - 5.0 && Sum >= 3 && isMiddleStraight && !isDown) {
+		if (isHandDown && isMoveDown && PalmPosition[Index_Now].y < PalmPosition[(Index_Now+1)%2].y - 5.0 && Sum >= 3 && isMiddleStraight && isIndexStraight && !isDown) {
 			isDown = true;
 			AudioClip drum = GameObject.Find("Hand Controller").GetComponent<AC>().gong;
 			Vector3 position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
@@ -201,7 +205,7 @@ public class GongSound : AbstractSound {
 			isTrue = true;
 		}
 
-		if (isHandDown  && isMoveUp && PalmPosition[Index_Now].y > PalmPosition[(Index_Now+1)%2].y + 5.0 && Sum >= 3 && isMiddleStraight && isDown) {
+		if (isHandDown  && isMoveUp && PalmPosition[Index_Now].y > PalmPosition[(Index_Now+1)%2].y + 5.0 && Sum >= 3 && isMiddleStraight && isIndexStraight && isDown) {
 			isDown = false;
 		}
 
