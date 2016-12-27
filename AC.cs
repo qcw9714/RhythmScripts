@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class AC : MonoBehaviour {
 	public Vector3 position;
+	public GameObject prefabCube;
 
 	public AudioClip drum;
 	public AudioClip gong;
+	public AudioClip bomb;
 	public AudioClip pianoA;
 	public AudioClip pianoB;
 	public AudioClip pianoC;

@@ -18,6 +18,7 @@ public class MotionDetection : MonoBehaviour {
 		sounds.Add (new PianoLeftSound ());
 		sounds.Add (new PianoRightSound ());
 		sounds.Add (new GongSound ());
+		sounds.Add (new BombSound());
 	}
 
 	// Update is called once per frame
@@ -102,6 +103,17 @@ public class MotionDetection : MonoBehaviour {
 				GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("attackSpearThrow");
 			} else if (actionStep == 1 && !isPlaying) {
 				actionKind = actionStep = 0;
+			}
+		}
+		if (actionKind == 5) {
+			if (actionStep == 0 && !isPlaying) {
+				++actionStep;
+				GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("idle2");
+			} else if (actionStep == 1 && !isPlaying) {
+				++actionStep;
+				GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("death");
+			} else if (actionStep == 2 && !isPlaying) {
+				actionKind = actionStep = -1;
 			}
 		}
 	}
