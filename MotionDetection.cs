@@ -40,6 +40,8 @@ public class MotionDetection : MonoBehaviour {
 			if (!isPlaying) GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("idle");
 		}
 
+		Debug.Log (actionKind);
+		Debug.Log (actionStep);
 		// other actions
 		if (GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().IsPlaying ("idle"))
 			isPlaying = false;
@@ -61,24 +63,22 @@ public class MotionDetection : MonoBehaviour {
 				if (!isPlaying) {
 					++actionStep;
 					lastRotateAngle = Random.Range (0, 360);
+					for (int i = 0; i < 4; ++i) {
+						if (Mathf.Cos(lastRotateAngle / 180f * Mathf.PI) * GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().position.x <= 0)
+						if (Mathf.Sin(lastRotateAngle / 180f * Mathf.PI) * GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().position.z >= 0)
+							break;
+						lastRotateAngle += 90f;
+					}
 					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Rotate (0, lastRotateAngle, 0);
 					GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("run");
 				}
 			} else
 			if (actionStep == 1) {
 				if (!isPlaying) {
-					++actionStep;
-					GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("run");
-				} else {
-					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * 1f * Time.deltaTime);
-				}
-			} else
-			if (actionStep == 2) {
-				if (!isPlaying) {
 					actionKind = actionStep = 0;
 					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Rotate (0, -lastRotateAngle, 0);
 				} else {
-//					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * -1f * Time.deltaTime);
+					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * 2f * Time.deltaTime);
 				}
 			}
 		}
@@ -98,6 +98,13 @@ public class MotionDetection : MonoBehaviour {
 				actionKind = actionStep = 0;
 			}
 		}
-
+		if (actionKind == 4) {
+			if (actionStep == 0 && !isPlaying) {
+				++actionStep;
+				GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("attackSpearThrow");
+			} else if (actionStep == 1 && !isPlaying) {
+				actionKind = actionStep = 0;
+			}
+		}
 	}
 }
