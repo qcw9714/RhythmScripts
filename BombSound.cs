@@ -28,7 +28,7 @@ public class BombSound : AbstractSound {
 
 		bool isTrue = false;
 		if (-60 < recentLeftPosition && recentLeftPosition < 60)
-			if (recentLeftPosition < lastLeftPosition - 30f && !isLeft && lastLeftPosition != 0) {
+			if (recentLeftPosition < lastLeftPosition - 45f && !isLeft && lastLeftPosition != 0) {
 				isLeft = true;
 				isTrue = true;
 				
