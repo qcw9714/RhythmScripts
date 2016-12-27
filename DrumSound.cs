@@ -22,7 +22,6 @@ public class DrumSound : AbstractSound {
 				AudioClip drum = GameObject.Find("Hand Controller").GetComponent<AC>().drum;
 				Vector3 position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
 				AudioSource.PlayClipAtPoint (drum,position);
-
 				isTrue = true;
 			}
 			lastSphereRadius = recentSphereRadius;
