@@ -119,8 +119,11 @@ public class PianoLeftSound : AbstractSound {
 				tt++;
 			}
 		}
+		bool hasDrop = false;
+		if (LeftPosition [Index_Now, 1].y - LeftPosition [Index_Now, 0].y > 15)
+			hasDrop = true;
 		bool isTrue = false;
-		if(LeftDisResult[0] > 3.0 && tt>=3 && !isDown && LeftPosition [Index_Now,0].y < LeftPosition [(Index_Now + 1) % 2,0].y){
+		if(hasDrop && LeftDisResult[0] > 3.0 && tt>=3 && !isDown && LeftPosition [Index_Now,0].y < LeftPosition [(Index_Now + 1) % 2,0].y){
 			isTrue = true;
 			AudioClip drum;
 			Vector3 position;

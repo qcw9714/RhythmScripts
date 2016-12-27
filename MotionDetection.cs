@@ -40,8 +40,6 @@ public class MotionDetection : MonoBehaviour {
 			if (!isPlaying) GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("idle");
 		}
 
-		Debug.Log (actionKind);
-		Debug.Log (actionStep);
 		// other actions
 		if (GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().IsPlaying ("idle"))
 			isPlaying = false;
