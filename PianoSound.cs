@@ -4,173 +4,175 @@ using UnityEngine;
 using Leap;
 
 public class PianoSound : AbstractSound {
-
-	//ArrayList FrameBuffer;
-
-	//const int max = 20;
-	bool isDown = false;
-
-	const int BUFFER_MAX=5;
-
-	private int m_CurBufIndex=0;
-
-	public E_HandInAboveView m_AboveView = E_HandInAboveView.None;//首先检测到的手
-
-	private Dictionary<Finger.FingerType,FingerData>[] m_FingerDatas = new Dictionary<Finger.FingerType, FingerData>[2];//当前帧中手指的数据
-
-	private Dictionary<Finger.FingerType,FingerData>[,] m_FingerDatasBuffer=new Dictionary<Finger.FingerType, FingerData>[2,BUFFER_MAX];//手指数据的所有缓存
-
-	private PointData[] m_PalmDatas = new PointData[2];//当前帧中左手两手掌心点的数据（包括方向以及位置）
-
-	private readonly PointData m_DefaultPointData = new PointData(Vector.Zero, Vector.Zero);
-
-	private readonly FingerData m_DefaultFingerData = new FingerData(Vector.Zero,Vector.Zero,Vector.Zero);
-
-	public PianoSound() {
-		//空间分配
-		m_FingerDatas[0] = new Dictionary<Finger.FingerType, FingerData>();
-		m_FingerDatas[1] = new Dictionary<Finger.FingerType, FingerData>();
-		for (int i = 0; i < 2; i++)
-		{
-			for (int j = 0; j < BUFFER_MAX; j++)
-			{
-				m_FingerDatasBuffer[i, j] = new Dictionary<Finger.FingerType, FingerData>();
-			}
-		}
-		m_PalmDatas [0]=m_DefaultPointData;
-		m_PalmDatas [1]=m_DefaultPointData;
-		DicAddDefaultData(m_FingerDatas [0]) ;
-		DicAddDefaultData(m_FingerDatas [1]) ;
-		for(int i=0;i<2;i++)
-		{
-			for(int j=0;j<BUFFER_MAX;j++)
-			{
-				DicAddDefaultData(m_FingerDatasBuffer[i,j]);
+	public bool isDown = false;
+	public int Index_Now = 0;
+	public Vector[,] LeftPosition;//左手
+	public Vector[,] RightPosition;//右手
+	public double[] RightDisResult = new double[5];
+	private readonly Vector VectorZero = new Vector(0,0,0);
+	public PianoSound(){
+		LeftPosition  = new Vector[2,5];
+		RightPosition  = new Vector[2,5];
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 5; j++) {
+				LeftPosition [i, j] = new Vector (0, 0, 0);
+				RightPosition [i, j] = new Vector (0, 0, 0);
 			}
 		}
 	}
-
-	void DicAddDefaultData(Dictionary<Finger.FingerType, FingerData> dic)
-	{
-		dic.Add (Finger.FingerType.TYPE_INDEX,m_DefaultFingerData);
-		dic.Add (Finger.FingerType.TYPE_MIDDLE,m_DefaultFingerData);
-		dic.Add (Finger.FingerType.TYPE_PINKY,m_DefaultFingerData);
-		dic.Add (Finger.FingerType.TYPE_RING,m_DefaultFingerData);
-		dic.Add (Finger.FingerType.TYPE_THUMB,m_DefaultFingerData);
+	double CalDis(Vector v,Vector e){
+		double temp0 = System.Math.Pow((double)v.x-(double)e.x,2.0);
+		double temp1 = System.Math.Pow((double)v.y-(double)e.y,2.0);
+		double temp2 = System.Math.Pow((double)v.z-(double)e.z,2.0);
+		double res = System.Math.Sqrt (temp0 + temp1 + temp2);
+		return res;
 	}
-
-	void ClearTheHandData(int handIndex)
-	{
-		m_PalmDatas [handIndex].Set (m_DefaultPointData);
-		m_FingerDatas[handIndex].Clear();
-		m_FingerDatasBuffer [handIndex, m_CurBufIndex].Clear();
-	}
-
-	void SaveFingerDataWithHandIndex(Hand hand)                            
-	{
-		bool isLeft = hand.IsLeft;
-		int handIndex = isLeft ? 0 : 1;
-		foreach (Finger finger in hand.Fingers)
-		{
-			Finger.FingerType fingerType = finger.Type;
-			Vector fingerDir = finger.Direction;
-			Vector distalPos = finger.TipPosition;
-			Vector metacarpalPos = finger.Bone(Bone.BoneType.TYPE_METACARPAL).Center;
-			//如果是拇指，用近端骨指的位置代替
-			if (finger.Type==Finger.FingerType.TYPE_THUMB)
-			{
-				metacarpalPos = finger.Bone(Bone.BoneType.TYPE_PROXIMAL).Center;
+	void SaveData(Hand hand){
+		if (hand != null) {
+			if (hand.IsRight) {//右手
+				foreach (Finger finger in hand.Fingers) {///有可能有手指没有检测到·
+					Finger.FingerType fingerType = finger.Type;
+					switch (fingerType) {
+					case Finger.FingerType.TYPE_INDEX:
+						RightPosition [Index_Now,0] = finger.TipPosition;
+						break;
+					case Finger.FingerType.TYPE_MIDDLE:
+						RightPosition [Index_Now,1] = finger.TipPosition;
+						break;
+					case Finger.FingerType.TYPE_PINKY:
+						RightPosition [Index_Now,2] = finger.TipPosition;
+						break;
+					case Finger.FingerType.TYPE_RING:
+						RightPosition [Index_Now,3] = finger.TipPosition;
+						break;
+					case Finger.FingerType.TYPE_THUMB:
+						RightPosition [Index_Now,4] = finger.TipPosition;
+						break;
+					default:
+						break;
+					}
+				}
+			} else {
+				foreach (Finger finger in hand.Fingers) {///有可能有手指没有检测到·
+					Finger.FingerType fingerType = finger.Type;
+					switch (fingerType) {
+					case Finger.FingerType.TYPE_INDEX:
+							LeftPosition [Index_Now,0] = finger.TipPosition;
+							break;
+						case Finger.FingerType.TYPE_MIDDLE:
+							LeftPosition [Index_Now,1] = finger.TipPosition;
+							break;
+						case Finger.FingerType.TYPE_PINKY:
+							LeftPosition [Index_Now,2] = finger.TipPosition;
+							break;
+						case Finger.FingerType.TYPE_RING:
+							LeftPosition [Index_Now,3] = finger.TipPosition;
+							break;
+						case Finger.FingerType.TYPE_THUMB:
+							LeftPosition [Index_Now,4] = finger.TipPosition;
+							break;
+						default:
+							break;
+					}
+				}		
 			}
-			FingerData fingerData = new FingerData(distalPos,fingerDir, metacarpalPos);
-			SaveFingerData(handIndex, fingerType, fingerData);                                                   
 		}
 	}
-	void SaveFingerData(int handIndex,Finger.FingerType fingerType,FingerData fingerData)
-	{
-		//将data保存或者覆盖到m_FingerDatas中
-		if(m_FingerDatas[handIndex].ContainsKey(fingerType))
-		{
-			m_FingerDatas[handIndex][fingerType] = fingerData;
-		}
-		else
-		{
-			m_FingerDatas[handIndex].Add(fingerType, fingerData);
-		}
-
-		//保存或者覆盖到buffer中
-		if(m_FingerDatasBuffer[handIndex,m_CurBufIndex].ContainsKey(fingerType))
-		{
-			m_FingerDatasBuffer[handIndex, m_CurBufIndex][fingerType] = fingerData;
-		}
-		else
-		{
-			m_FingerDatasBuffer[handIndex, m_CurBufIndex].Add(fingerType, fingerData);
-		}
-	}
-	override public bool UpdateFrame (ref Frame frame) {
+	override public bool UpdateFrame (ref Frame frame){
 		HandList hands = frame.Hands;//所有的手
 		int count = hands.Count;
-		if (count == 0) {
-			m_AboveView = E_HandInAboveView.None;//无
-		} else {
-			bool isRight = hands [0].IsRight;
-			if(isRight)
-			{
-				m_AboveView = E_HandInAboveView.Right;//右手
+		if (count == 0) {//没有手
+			for (int i = 0; i < 5; i++) {
+				LeftPosition [Index_Now,i] = VectorZero;
+				RightPosition [Index_Now,i] = VectorZero;
 			}
-			else
-			{
-				m_AboveView = E_HandInAboveView.Left;//左手
+		} else if (count == 1) {
+			Hand hand = hands [0];
+			bool isRight = hand.IsRight;
+			if (isRight) {//右手
+				SaveData(hand);
+				for (int i = 0; i < 5; i++) {//左手没有检测到，置0
+					LeftPosition [Index_Now,i] = VectorZero;
+				}
+			} else {//左手
+				SaveData(hand);
+				for (int i = 0; i < 5; i++) {//左手没有检测到，置0
+					RightPosition [Index_Now,i] = VectorZero;
+				}
 			}
+		} else {//左右手都有
+			SaveData(hands[0]);
+			SaveData(hands[1]);
 		}
-		//清除不存在的手信息
-		if (count == 0) {
-			for (int i = 0; i < 2; i++) {
-				ClearTheHandData (i);
-			}
-		}
-		else if (count == 1) {
-			int emptyHandIndex = hands [0].IsLeft ? 1 : 0;
-			ClearTheHandData (emptyHandIndex);
-		} else {
-		}
+		Debug.Log (RightPosition [Index_Now,0]);
 
-		foreach (Hand hand in hands)
-		{
-			if (hand.IsLeft)
-			{
-				m_PalmDatas[0].m_Position = hand.PalmPosition;
-				m_PalmDatas[0].m_Direction = hand.PalmNormal;
-			}
-			else if(hand.IsRight)
-			{
-				m_PalmDatas[1].m_Position = hand.PalmPosition;
-				m_PalmDatas[1].m_Direction = hand.PalmNormal;
+		//手信息存储完毕
+		//根据右手两帧之间的不同来判断是不是点击手势
+		//Index帧前一帧为(Index+1)%2
+		for (int i = 0; i < 5; i++) {
+			RightDisResult [i] = CalDis (RightPosition [Index_Now,i], RightPosition [(Index_Now + 1) % 2,i]);
+			//Debug.Log (RightDisResult [i]);
+		}
+		int tt = 0;//另外4根手指中移动距离<2.5的个数
+		for (int i = 1; i < 5; i++) {
+			if (RightDisResult [i] < 2.5) {
+				tt++;
 			}
 		}
-		foreach ( Hand hand in hands )
-		{
-			SaveFingerDataWithHandIndex( hand );
-		}
-		//根据两帧之间手的数据来判断是不是食指在点击
-		Debug.Log ("In update!");
-		if (m_FingerDatas [1].ContainsKey (Finger.FingerType.TYPE_INDEX) && m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4].ContainsKey (Finger.FingerType.TYPE_INDEX)
-			&& m_FingerDatas [1].ContainsKey (Finger.FingerType.TYPE_MIDDLE) && m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4].ContainsKey (Finger.FingerType.TYPE_MIDDLE)) {
-			//Debug.Log (m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position);
-			//Debug.Log (m_FingerDatas [1] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position);
-			if (((m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position.y < m_FingerDatasBuffer [1,(m_CurBufIndex + 3) % 4] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position.y - 15.0))
-				&& System.Math.Abs(m_FingerDatas [1] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position.y - m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position.y)<10.0
-				&& isDown == false) {
-				isDown = true;
-				Debug.Log ("Downing!!");
+		bool isTrue = false;
+		if(RightDisResult[0] > 3.0 && tt>=3 && isDown==false && RightPosition [Index_Now,0].y < RightPosition [(Index_Now + 1) % 2,0].y){
+			isTrue = true;
+			AudioClip drum;
+			Vector3 position;
+			if (RightPosition [Index_Now, 0].x < -120.0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoA;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} else if (RightPosition [Index_Now, 0].x >= -120.0 && RightPosition [Index_Now, 0].x < -90.0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoB;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} 
+			else if (RightPosition [Index_Now, 0].x >= -90.0 && RightPosition [Index_Now, 0].x < -60.0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoC;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} 
+			else if (RightPosition [Index_Now, 0].x >= -60.0 && RightPosition [Index_Now, 0].x < -30.0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoD;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} 
+			else if (RightPosition [Index_Now, 0].x >= -30.0 && RightPosition [Index_Now, 0].x < 0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoE;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} 
+			else if (RightPosition [Index_Now, 0].x >= 0 && RightPosition [Index_Now, 0].x < 30.0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoF;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} 
+			else if (RightPosition [Index_Now, 0].x >= 30.0 && RightPosition [Index_Now, 0].x < 60.0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoG;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} 
+			else if (RightPosition [Index_Now, 0].x >= 60.0 && RightPosition [Index_Now, 0].x < 90.0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoH;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} 
+			else if (RightPosition [Index_Now, 0].x >= 90.0 && RightPosition [Index_Now, 0].x < 120.0) {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoI;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			} 
+			else {
+				drum = GameObject.Find ("Hand Controller").GetComponent<AC> ().pianoJ;
+				position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
 			}
-			if (m_FingerDatas [1] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position.y > m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4] [Finger.FingerType.TYPE_INDEX].m_Point.m_Position.y + 15.0
-				&& System.Math.Abs(m_FingerDatas [1] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position.y - m_FingerDatasBuffer [1, (m_CurBufIndex + 3) % 4] [Finger.FingerType.TYPE_MIDDLE].m_Point.m_Position.y)<10.0) {
-				Debug.Log("Uping!!");
-				isDown = false;
-			}
+			isDown = true;
+			//Debug.Log("Downing!");
+		//	AudioClip drum = GameObject.Find("Hand Controller").GetComponent<AC>().pianoA;
+		//	Vector3 position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
+			AudioSource.PlayClipAtPoint (drum,position);
 		}
-		m_CurBufIndex=(m_CurBufIndex+1)%(BUFFER_MAX-1);
-		return true;
+		if(RightPosition [Index_Now,0].y > RightPosition [(Index_Now + 1) % 2,0].y + 1.0){
+			isDown = false;
+		}
+		Index_Now = (Index_Now + 1) % 2;
+		return isTrue;
 	}
 }
