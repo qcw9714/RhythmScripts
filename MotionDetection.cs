@@ -17,6 +17,7 @@ public class MotionDetection : MonoBehaviour {
 		sounds.Add (new DrumSound());
 		sounds.Add (new PianoLeftSound ());
 		sounds.Add (new PianoRightSound ());
+		sounds.Add (new GongSound ());
 	}
 
 	// Update is called once per frame
