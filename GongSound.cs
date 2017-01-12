@@ -198,7 +198,7 @@ public class GongSound : AbstractSound {
 			}
 		}
 
-		if (isHandDown && isMoveDown && PalmPosition[Index_Now].y < PalmPosition[(Index_Now+1)%2].y - 5.0 && Sum >= 3 && isMiddleStraight && isIndexStraight && !isDown) {
+		if (isHandDown && isMoveDown && PalmPosition[Index_Now].y < PalmPosition[(Index_Now+1)%2].y - 6.5 && Sum >= 3 && isMiddleStraight && isIndexStraight && !isDown) {
 			isDown = true;
 			AudioClip drum = GameObject.Find("Hand Controller").GetComponent<AC>().gong;
 			Vector3 position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
@@ -206,7 +206,7 @@ public class GongSound : AbstractSound {
 			isTrue = true;
 		}
 
-		if (isHandDown  && isMoveUp && PalmPosition[Index_Now].y > PalmPosition[(Index_Now+1)%2].y + 5.0 && Sum >= 3 && isMiddleStraight && isIndexStraight && isDown) {
+		if (isHandDown  && isMoveUp && PalmPosition[Index_Now].y > PalmPosition[(Index_Now+1)%2].y + 5 && Sum >= 3 && isMiddleStraight && isIndexStraight && isDown) {
 			isDown = false;
 		}
 
