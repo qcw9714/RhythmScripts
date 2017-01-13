@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Leap;
 
-public class GongSound : AbstractSound {
+
+public class CymbalSound : AbstractSound{
 
 	public int Index_Now = 0;
 	static readonly float FingerStrightState_Radian = Mathf.PI/12;//15度
 	public bool isDown = false;//手掌是不是已经向下运动
-	public Vector[] RightPosition;//指尖位置
-	public Vector[] RightDirection;//指尖方向
-	public Vector[] RightRoot;//根骨位置
+	public Vector[] LeftPosition;//指尖位置
+	public Vector[] LeftDirection;//指尖方向
+	public Vector[] LeftRoot;//根骨位置
 	public Vector[] PalmPosition;//手掌掌心位置以及上一帧手掌掌心位置
 	public Vector PalmNormal;//手掌法向量
 	public Vector PalmVelocity;//手掌运动方向
@@ -21,17 +22,17 @@ public class GongSound : AbstractSound {
 	bool isMoveDown = false;
 	bool isMoveUp = false;
 
-	public GongSound() {
-		RightPosition  = new Vector[5];
-		RightDirection  = new Vector[5];
+	public CymbalSound() {
+		LeftPosition  = new Vector[5];
+		LeftDirection  = new Vector[5];
 		PalmPosition = new Vector[2];
 		PalmNormal = new Vector (0, 0, 0);
 		PalmVelocity = new Vector (0, 0, 0);
-		RightRoot = new Vector[5];
+		LeftRoot = new Vector[5];
 		for (int j = 0; j < 5; j++) {
-			RightPosition [j] = new Vector (0, 0, 0);
-			RightDirection [j] = new Vector (0, 0, 0);
-			RightRoot [j] = new Vector (0, 0, 0);
+			LeftPosition [j] = new Vector (0, 0, 0);
+			LeftDirection [j] = new Vector (0, 0, 0);
+			LeftRoot [j] = new Vector (0, 0, 0);
 		}
 		for (int i = 0; i < 2; i++) {
 			PalmPosition [i] = new Vector (0, 0, 0);
@@ -42,19 +43,19 @@ public class GongSound : AbstractSound {
 		PalmNormal = Vector.Zero;
 		PalmVelocity = Vector.Zero;
 		for (int j = 0; j < 5; j++) {
-			RightPosition [j] = Vector.Zero;
-			RightDirection [j] = Vector.Zero;
-			RightRoot [j] = Vector.Zero;
+			LeftPosition [j] = Vector.Zero;
+			LeftDirection [j] = Vector.Zero;
+			LeftRoot [j] = Vector.Zero;
 		}
 	}
 	public bool IsStraight(int i, float adjustBorder=0f)
 	{
 		bool isStraight =false;
-		Vector Dir = RightDirection [i];
+		Vector Dir = LeftDirection [i];
 		//如果指尖方向为0向量，表示无效的数据
 		if (!Dir.Equals(Vector.Zero)) 
 		{
-			Vector fingerDir = RightPosition [i] - RightRoot [i];//指尖位置减去指根位置，由指根指向指尖的向量	        
+			Vector fingerDir = LeftPosition [i] - LeftRoot [i];//指尖位置减去指根位置，由指根指向指尖的向量	        
 			float radian = fingerDir.AngleTo(Dir);
 
 			if (radian < FingerStrightState_Radian + adjustBorder)
@@ -69,29 +70,29 @@ public class GongSound : AbstractSound {
 			Finger.FingerType fingerType = finger.Type;
 			switch (fingerType) {
 			case Finger.FingerType.TYPE_INDEX://食指
-				RightPosition [0] = finger.TipPosition;
-				RightDirection [0] = finger.Direction;
-				RightRoot [0] = finger.Bone (Bone.BoneType.TYPE_METACARPAL).Center;
+				LeftPosition [0] = finger.TipPosition;
+				LeftDirection [0] = finger.Direction;
+				LeftRoot [0] = finger.Bone (Bone.BoneType.TYPE_METACARPAL).Center;
 				break;
 			case Finger.FingerType.TYPE_MIDDLE://中指
-				RightPosition [1] = finger.TipPosition;
-				RightDirection [1] = finger.Direction;
-				RightRoot [1] = finger.Bone (Bone.BoneType.TYPE_METACARPAL).Center;
+				LeftPosition [1] = finger.TipPosition;
+				LeftDirection [1] = finger.Direction;
+				LeftRoot [1] = finger.Bone (Bone.BoneType.TYPE_METACARPAL).Center;
 				break;
 			case Finger.FingerType.TYPE_PINKY://小指
-				RightPosition [2] = finger.TipPosition;
-				RightDirection [2] = finger.Direction;
-				RightRoot [2] = finger.Bone (Bone.BoneType.TYPE_METACARPAL).Center;
+				LeftPosition [2] = finger.TipPosition;
+				LeftDirection [2] = finger.Direction;
+				LeftRoot [2] = finger.Bone (Bone.BoneType.TYPE_METACARPAL).Center;
 				break;
 			case Finger.FingerType.TYPE_RING://无名指
-				RightPosition [3] = finger.TipPosition;
-				RightDirection [3] = finger.Direction;
-				RightRoot [3] = finger.Bone (Bone.BoneType.TYPE_METACARPAL).Center;
+				LeftPosition [3] = finger.TipPosition;
+				LeftDirection [3] = finger.Direction;
+				LeftRoot [3] = finger.Bone (Bone.BoneType.TYPE_METACARPAL).Center;
 				break;
 			case Finger.FingerType.TYPE_THUMB://大拇指
-				RightPosition [4] = finger.TipPosition;
-				RightDirection [4] = finger.Direction;
-				RightRoot [4] = finger.Bone (Bone.BoneType.TYPE_PROXIMAL).Center;
+				LeftPosition [4] = finger.TipPosition;
+				LeftDirection [4] = finger.Direction;
+				LeftRoot [4] = finger.Bone (Bone.BoneType.TYPE_PROXIMAL).Center;
 				break;
 			default:
 				break;
@@ -112,7 +113,7 @@ public class GongSound : AbstractSound {
 		if (count == 0) {
 			MakeAllZero ();
 		} else if (count == 1) {
-			if (hands [0].IsRight) {//场景中有右手
+			if (hands [0].IsLeft) {//场景中有左手
 				PalmPosition[Index_Now] = hands [0].PalmPosition;
 				PalmNormal = hands [0].PalmNormal;
 				PalmVelocity = hands [0].PalmVelocity;
@@ -122,7 +123,7 @@ public class GongSound : AbstractSound {
 			}
 		} else {//有两只手
 			Hand hand = null;
-			if (hands [0].IsRight) {
+			if (hands [0].IsLeft) {
 				hand = hands [0];
 			} else {
 				hand = hands [1];
@@ -155,9 +156,9 @@ public class GongSound : AbstractSound {
 				isHandDown = true;
 			}
 		}
-			
+
 		//然后计算手掌当前运动方向与（0,-1,0）夹角，小于5度认为是向下运动
-	/*	if (!PalmVelocity.Equals (Vector.Zero)) {
+		/*	if (!PalmVelocity.Equals (Vector.Zero)) {
 			float radian = PalmVelocity.AngleTo (new Vector (0, -1, 0));
 			if (radian < f) {
 				isMoveDown = true;
@@ -200,9 +201,9 @@ public class GongSound : AbstractSound {
 
 		if (isHandDown && isMoveDown && PalmPosition[Index_Now].y < PalmPosition[(Index_Now+1)%2].y - 5.0 && Sum >= 3 && isMiddleStraight && isIndexStraight && !isDown) {
 			isDown = true;
-			AudioClip Gong = GameObject.Find("Hand Controller").GetComponent<AC>().gong;
+			AudioClip Cymbal = GameObject.Find("Hand Controller").GetComponent<AC>().cymbal;
 			Vector3 position = GameObject.Find ("Hand Controller").GetComponent<AC> ().position;
-			AudioSource.PlayClipAtPoint (Gong,position);
+			AudioSource.PlayClipAtPoint (Cymbal,position);
 			isTrue = true;
 		}
 
@@ -214,3 +215,4 @@ public class GongSound : AbstractSound {
 		return isTrue;
 	}
 }
+

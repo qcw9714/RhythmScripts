@@ -8,6 +8,7 @@ public class AC : MonoBehaviour {
 
 	public AudioClip drum;
 	public AudioClip gong;
+	public AudioClip cymbal;
 	public AudioClip bomb;
 	public AudioClip pianoA;
 	public AudioClip pianoB;

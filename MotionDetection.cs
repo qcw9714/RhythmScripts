@@ -18,12 +18,13 @@ public class MotionDetection : MonoBehaviour {
 		sounds.Add (new PianoLeftSound ());
 		sounds.Add (new PianoRightSound ());
 		sounds.Add (new GongSound ());
+		sounds.Add (new CymbalSound());
 		sounds.Add (new BombSound());
 	}
 
 	// Update is called once per frame
 	void Update () {
-		
+
 		Controller controller = GameObject.Find ("Hand Controller").GetComponent<HandController>().GetLeapController();
 		Frame frame = controller.Frame (); // controller is a Controller object
 
@@ -49,13 +50,13 @@ public class MotionDetection : MonoBehaviour {
 				++actionStep;
 				GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("jump");
 			} else
-			if (actionStep == 1 && !isPlaying) {
-				++actionStep;
-				GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("jumpland");
-			} else
-			if (actionStep == 2 && !isPlaying) {
-				actionKind = actionStep = 0;
-			}
+				if (actionStep == 1 && !isPlaying) {
+					++actionStep;
+					GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("jumpland");
+				} else
+					if (actionStep == 2 && !isPlaying) {
+						actionKind = actionStep = 0;
+					}
 		}
 		if (actionKind == 2) {
 			if (actionStep == 0) {
@@ -72,14 +73,14 @@ public class MotionDetection : MonoBehaviour {
 					GameObject.Find ("astronaut_prefab").GetComponent<Animation> ().Play ("run");
 				}
 			} else
-			if (actionStep == 1) {
-				if (!isPlaying) {
-					actionKind = actionStep = 0;
-					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Rotate (0, -lastRotateAngle, 0);
-				} else {
-					GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * 2f * Time.deltaTime);
+				if (actionStep == 1) {
+					if (!isPlaying) {
+						actionKind = actionStep = 0;
+						GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Rotate (0, -lastRotateAngle, 0);
+					} else {
+						GameObject.Find ("astronaut_prefab").GetComponent<Transform> ().Translate (Vector3.forward * 2f * Time.deltaTime);
+					}
 				}
-			}
 		}
 		if (actionKind == 3) {
 			if (actionStep == 0 && !isPlaying) {
